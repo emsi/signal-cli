@@ -9,7 +9,6 @@ permissions: {}
 
 env:
   IMAGE_NAME: signal-cli
-  IMAGE_REGISTRY: ghcr.io/asamk
   REGISTRY_USER: ${{ github.actor }}
   REGISTRY_PASSWORD: ${{ github.token }}
   ARCHIVE_JAVA_VERSION: 25
@@ -33,7 +32,7 @@ jobs:
         id: version
         run: |
           mv ./signal-cli-archive-${{ env.ARCHIVE_JAVA_VERSION }}/* .
-          echo "version=$(cat VERSION)" >> $GITHUB_OUTPUT
+          echo "version=$(cat VERSION)" >> "$GITHUB_OUTPUT"
 
       - name: Create draft release and upload assets
         env:
@@ -57,6 +56,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+      - name: Set image registry
+        shell: bash
+        run: echo "IMAGE_REGISTRY=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_ENV"
       - name: Download signal-cli build from CI workflow
         uses: actions/download-artifact@v8
 
@@ -73,6 +75,7 @@ jobs:
           image: ${{ env.IMAGE_NAME }}
           tags: latest ${{ github.sha }} ${{ needs.release.outputs.version }}
           containerfiles: ./Containerfile
+          labels: org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
           oci: true
 
       - name: Push To GHCR
@@ -97,6 +100,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+      - name: Set image registry
+        shell: bash
+        run: echo "IMAGE_REGISTRY=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_ENV"
       - name: Download signal-cli build from CI workflow
         uses: actions/download-artifact@v8
 
@@ -114,6 +120,7 @@ jobs:
           image: ${{ env.IMAGE_NAME }}
           tags: latest-native ${{ github.sha }}-native ${{ needs.release.outputs.version }}-native
           containerfiles: ./native.Containerfile
+          labels: org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
           oci: true
 
       - name: Push To GHCR
@@ -138,6 +145,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+      - name: Set image registry
+        shell: bash
+        run: echo "IMAGE_REGISTRY=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_ENV"
       - name: Download signal-cli build from CI workflow
         uses: actions/download-artifact@v8
 
@@ -155,6 +165,7 @@ jobs:
           image: ${{ env.IMAGE_NAME }}
           tags: latest-client ${{ github.sha }}-client ${{ needs.release.outputs.version }}-client
           containerfiles: ./client.Containerfile
+          labels: org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
           oci: true
 
       - name: Push To GHCR
