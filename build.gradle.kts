@@ -10,7 +10,7 @@ plugins {
 
 allprojects {
     group = "org.asamk"
-    version = "0.14.9-numberless.1"
+    version = "0.14.9-numberless.2"
 }
 
 java {
